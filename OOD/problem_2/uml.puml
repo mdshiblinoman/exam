@@ -1,0 +1,56 @@
+@startuml
+title Problem 2 - Chain of Responsibility for Cheque Authorization
+
+class Cheque {
+  -accountHolderName: String
+  -amount: double
+  -approvals: List<String>
+  +getAccountHolderName(): String
+  +getAmount(): double
+  +addApproval(roleName: String): void
+  +getApprovals(): List<String>
+}
+
+abstract class Authorizer {
+  -nextAuthorizer: Authorizer
+  +setNextAuthorizer(nextAuthorizer: Authorizer): Authorizer
+  +authorize(cheque: Cheque): void
+  #processCheque(cheque: Cheque): void
+  #shouldForward(cheque: Cheque): boolean
+}
+
+class Cashier {
+  -SENIOR_OFFICER_LIMIT: double
+  -MANAGER_LIMIT: double
+  #processCheque(cheque: Cheque): void
+  #shouldForward(cheque: Cheque): boolean
+}
+
+class SeniorOfficer {
+  -SENIOR_OFFICER_LIMIT: double
+  #processCheque(cheque: Cheque): void
+}
+
+class Manager {
+  -MANAGER_LIMIT: double
+  #processCheque(cheque: Cheque): void
+  #shouldForward(cheque: Cheque): boolean
+}
+
+class Bank {
+  -firstAuthorizer: Authorizer
+  +withdrawUsingCheque(cheque: Cheque): void
+}
+
+Authorizer <|-- Cashier
+Authorizer <|-- SeniorOfficer
+Authorizer <|-- Manager
+
+Authorizer o--> Authorizer : nextAuthorizer
+Bank o--> Authorizer : firstAuthorizer
+Bank ..> Cheque : processes
+Cashier ..> Cheque : authorizes/forwards
+SeniorOfficer ..> Cheque : authorizes
+Manager ..> Cheque : authorizes
+
+@enduml

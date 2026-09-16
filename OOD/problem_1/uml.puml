@@ -1,0 +1,68 @@
+@startuml
+title Problem 1 - Abstract Factory for Global Motors
+
+interface Car {
+  +getType(): String
+  +getEngineVolume(): String
+  +getColor(): String
+  +getFuelType(): String
+  +displayDetails(): void
+}
+
+abstract class AbstractCar {
+  -type: String
+  -engineVolume: String
+  -color: String
+  -fuelType: String
+  +displayDetails(): void
+}
+
+class UsaSmallCar
+class UsaSedanCar
+class UsaLuxuryCar
+class AsiaSmallCar
+class AsiaSedanCar
+class AsiaLuxuryCar
+
+interface CarFactory {
+  +createSmallCar(): Car
+  +createSedanCar(): Car
+  +createLuxuryCar(): Car
+}
+
+class UsaCarFactory {
+  +createSmallCar(): Car
+  +createSedanCar(): Car
+  +createLuxuryCar(): Car
+}
+
+class AsiaCarFactory {
+  +createSmallCar(): Car
+  +createSedanCar(): Car
+  +createLuxuryCar(): Car
+}
+
+class GlobalMotors {
+  +showAvailableCars(carFactory: CarFactory): void
+}
+
+Car <|.. AbstractCar
+AbstractCar <|-- UsaSmallCar
+AbstractCar <|-- UsaSedanCar
+AbstractCar <|-- UsaLuxuryCar
+AbstractCar <|-- AsiaSmallCar
+AbstractCar <|-- AsiaSedanCar
+AbstractCar <|-- AsiaLuxuryCar
+
+CarFactory <|.. UsaCarFactory
+CarFactory <|.. AsiaCarFactory
+
+UsaCarFactory ..> UsaSmallCar : creates
+UsaCarFactory ..> UsaSedanCar : creates
+UsaCarFactory ..> UsaLuxuryCar : creates
+AsiaCarFactory ..> AsiaSmallCar : creates
+AsiaCarFactory ..> AsiaSedanCar : creates
+AsiaCarFactory ..> AsiaLuxuryCar : creates
+GlobalMotors ..> CarFactory : uses
+
+@enduml
