@@ -1,69 +1,136 @@
-#define RCC_BASE (0x40023800)
-#define GPIOA_BASE (0x40020000)
-#define UART1_BASE (0x40011000)
+/* STM32F446RE USART1: PA9/PA10, LED PA5, button PC13 */
 
-#define RCC_AHB1ENR (*(volatile unsigned int *)(RCC_BASE + 0x30))
-#define RCC_APB2ENR (*(volatile unsigned int *)(RCC_BASE + 0x44))
+typedef struct {
+    volatile unsigned int MODER, OTYPER, OSPEEDR, PUPDR;
+    volatile unsigned int IDR, ODR, BSRR, LCKR, AFR[2];
+} GPIO;
+typedef struct {
+    volatile unsigned int CR, PLLCFGR, CFGR, CIR, AHB1RSTR, AHB2RSTR;
+    volatile unsigned int AHB3RSTR;
+    unsigned int r0;
+    volatile unsigned int APB1RSTR, APB2RSTR;
+    unsigned int r1[2];
+    volatile unsigned int AHB1ENR, AHB2ENR, AHB3ENR;
+    unsigned int r2;
+    volatile unsigned int APB1ENR, APB2ENR;
+} RCC_Type;
+typedef struct { volatile unsigned int SR, DR, BRR, CR1, CR2, CR3, GTPR; } UART;
 
-#define GPIOA_MODER (*(volatile unsigned int *)(GPIOA_BASE + 0x00))
-#define GPIOA_AFRH (*(volatile unsigned int *)(GPIOA_BASE + 0x24))
+#define RCC ((RCC_Type *)0x40023800U)
+#define PA  ((GPIO *)0x40020000U)
+#define PC  ((GPIO *)0x40020800U)
+#define U   ((UART *)0x40011000U)
+#define B(n) (1U << (n))
 
-#define UART1_SR (*(volatile unsigned int *)(UART1_BASE + 0x00))
-#define UART1_BRR (*(volatile unsigned int *)(UART1_BASE + 0x08))
-#define UART1_CR1 (*(volatile unsigned int *)(UART1_BASE + 0x0C))
-#define UART1_DR (*(volatile unsigned int *)(UART1_BASE + 0x04))
+#define RXNE B(5)
+#define TC   B(6)
+#define TXE  B(7)
+#define ORE  B(3)
+#define LIMIT 100000U
+#define DELAY 4000U
+#define PRESSED 1U
 
-#define SYSCLK 16000000U
-#define BAUDRATE 9600U
+volatile unsigned char uart_last_error;
 
-void uart1_tx_init(void);
-void uart1_receive(int n, char *str);
+static void Init(void);
+static unsigned char Send(unsigned char data);
+static unsigned char Wait(unsigned int flag, unsigned char error);
+static void LED(unsigned char on);
+static void Blink(unsigned char count);
+static void Delay(unsigned int ms);
 
 int main(void)
 {
-    uart1_tx_init();
-    char str[6];
-    while (1)
-    {
-        uart1_receive(6, str);
-        (void)str;
-    }
-}
+    unsigned char last = 0, button, data;
 
-void uart1_tx_init()
-{
-    /* Enable clock of port A*/
-    RCC_AHB1ENR |= (1 << 0);
+    Init();
+    LED(1);
 
-    /*PA10 to alternate function mode 10 at bit 20 and 21*/
-    GPIOA_MODER &= ~(3 << 20); // Clear bits 20:21
-    GPIOA_MODER |= (2 << 20);  // Set to Alternate Function mode (10)
-
-    /*AF7 (0111)*/
-    GPIOA_AFRH &= ~(0xF << 8); // clear bit 8-11
-    GPIOA_AFRH |= (7 << 8);
-
-    /*Clock of USART1*/
-    RCC_APB2ENR |= (1 << 4);
-
-    /*Configure BaudRate*/
-    UART1_BRR = (SYSCLK + (BAUDRATE / 2)) / BAUDRATE;
-
-    /* Enable RE*/
-    UART1_CR1 = (1 << 2);
-
-    /*Enable the UART1*/
-    UART1_CR1 |= (1 << 13);
-}
-
-void uart1_receive(int n, char *str)
-{
-    for (int i = 0; i < n; i++)
-    {
-        /* Rx data register is empty*/
-        while (!(UART1_SR & (1 << 5)))
-        {
+    while (1) {
+        button = (PC->IDR & B(13)) == 0;
+        if (button != last) {
+            LED(!button);
+            Send(button);
+            last = button;
         }
-        str[i] = UART1_DR;
+
+        if (U->SR & RXNE) {
+            data = U->DR;
+            if (data == PRESSED) {
+                Blink(5);
+                LED(0);
+            } else if (!data) {
+                LED(1);
+            }
+        } else if (U->SR & ORE) {
+            (void)U->DR;
+        }
+        Delay(10);
     }
+}
+
+static void Init(void)
+{
+    RCC->AHB1ENR |= B(0) | B(2);
+
+    PA->MODER = (PA->MODER & ~(3U << 10)) | B(10);
+    PA->OTYPER &= ~B(5);
+    PA->OSPEEDR |= 3U << 10;
+
+    PC->MODER &= ~(3U << 26);
+    PC->PUPDR &= ~(3U << 26);
+
+    PA->MODER = (PA->MODER & ~(0xFU << 18)) | (0xAU << 18);
+    PA->OTYPER &= ~(B(9) | B(10));
+    PA->OSPEEDR |= 0xFU << 18;
+    PA->PUPDR &= ~(0xFU << 18);
+    PA->AFR[1] = (PA->AFR[1] & ~(0xFFU << 4)) | (0x77U << 4);
+
+    RCC->APB2ENR |= B(4);
+    U->BRR = 0x683U; /* 9600 baud at 16 MHz. */
+    U->CR1 = B(13) | B(3) | B(2);
+}
+
+static unsigned char Wait(unsigned int flag, unsigned char error)
+{
+    unsigned int n = LIMIT;
+    while (!(U->SR & flag))
+        if (--n == 0) {
+            uart_last_error = error;
+            return 0;
+        }
+    return 1;
+}
+
+static unsigned char Send(unsigned char data)
+{
+    if (!Wait(TXE, 1))
+        return 0;
+    U->DR = data;
+    if (!Wait(TC, 2))
+        return 0;
+    uart_last_error = 0;
+    return 1;
+}
+
+static void LED(unsigned char on)
+{
+    PA->BSRR = on ? B(5) : B(21);
+}
+
+static void Blink(unsigned char count)
+{
+    while (count--) {
+        LED(1);
+        Delay(500);
+        LED(0);
+        Delay(500);
+    }
+}
+
+static void Delay(unsigned int ms)
+{
+    volatile unsigned int i, j;
+    for (i = 0; i < ms; i++)
+        for (j = 0; j < DELAY; j++) {}
 }
