@@ -1,3 +1,19 @@
+/**
+ * SPI TWO-WAY SWITCH — MASTER — Pure Bare Metal — NUCLEO-F446RE
+ * Uses SPI2 (PB13/14/15) so the LED (PA5) and button (PC13) stay free.
+ * Both boards have a button and an LED. SPI is master-driven, so THIS
+ * board drives both directions:
+ *
+ *   MY button pressed   → send 'S' → slave blinks 5× → slave answers 'D'
+ *                          → I little-blink (ack). No 'D' → I stay dark.
+ *   SLAVE button pressed → I find out by POLLING the slave → I blink 5×
+ *                          → I send 'K' so the slave little-blinks (its ack).
+ * Idle: both dark.  No slave / wrong wiring: both dark.
+ *
+ * WIRING (3 wires + GND): PB13(SCK)→PB13, PB15(MOSI)→PB15, PB14(MISO)←PB14, GND↔GND
+ * LED: PA5   BUTTON: PC13   LINK: SPI2 master
+ */
+
 #define BLINK_MS 200
 #define SLAVE_BLINK_WAIT 2500 /* > slave's 5-blink time; don't poll while it blinks */
 

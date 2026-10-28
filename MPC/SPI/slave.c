@@ -1,3 +1,19 @@
+/**
+ * SPI TWO-WAY SWITCH — SLAVE — Pure Bare Metal — NUCLEO-F446RE
+ * Uses SPI2 (PB13/14/15) so the LED (PA5) and button (PC13) stay free.
+ *
+ * The master drives the bus, so this board just answers each transfer:
+ *   'S' from master → the master pressed → my LED blinks 5× → I answer 'D' (ack).
+ *   'K' from master → my press was acked → little 2-blink.
+ *   Otherwise I load my BUTTON STATE ('B' pressed / 0 released) so the
+ *   master can see when I press.
+ *   Any other byte = bit sync lost → I reset my SPI (self re-sync).
+ * Idle: dark.
+ *
+ * WIRING (3 wires + GND): PB13(SCK)←PB13, PB15(MOSI)←PB15, PB14(MISO)→PB14, GND↔GND
+ * LED: PA5   BUTTON: PC13   LINK: SPI2 slave
+ */
+
 #define BLINK_MS 200
 
 #define RCC_AHB1ENR (*(volatile unsigned int *)0x40023830)
