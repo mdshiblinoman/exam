@@ -64,13 +64,6 @@ int main(int argc, char *argv[])
 
     int left_received;
 
-    /*
-       Even processes send first.
-       Odd processes receive first.
-
-       This avoids deadlock.
-    */
-
     if (rank % 2 == 0)
     {
         /* Send right boundary */
@@ -123,10 +116,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    /*
-       Print in order
-    */
-
     for (int p = 0; p < size; p++)
     {
         MPI_Barrier(MPI_COMM_WORLD);
@@ -134,16 +123,11 @@ int main(int argc, char *argv[])
         if (rank == p)
         {
             if (rank > 0)
-                printf(
-                    "P%d: Left boundary received = %d\n",
-                    rank,
-                    left_received);
+                printf("P%d: Left boundary received = %d\n", rank, left_received);
 
             if (rank < size - 1)
                 printf(
-                    "P%d: Right boundary sent = %d\n",
-                    rank,
-                    local_array[2]);
+                    "P%d: Right boundary sent = %d\n", rank, local_array[2]);
 
             fflush(stdout);
         }
