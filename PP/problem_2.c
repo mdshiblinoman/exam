@@ -1,7 +1,7 @@
 /*
-Problem_2: The root process distributes different rows of a matrix to worker processes using MPI_Send.
-Workers calculate the sum of their assigned rows and return the results using MPI_Recv.
-Sample Input
+Problem_2: The root process distributes different rows of a matrix to worker processes using MPI_Send. Workers calculate the sum of their assigned rows and return the results using MPI_Recv.
+
+Sample Input:
 Number of processes: 4
 Matrix:
 1 2 3 4
@@ -9,7 +9,8 @@ Matrix:
 9 10 11 12
 13 14 15 16
 Each process receives one row.
-Sample Output
+
+Sample Output:
 P0: Row = 1 2 3 4
 P1: Row = 5 6 7 8
 P2: Row = 9 10 11 12

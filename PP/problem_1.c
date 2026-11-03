@@ -1,13 +1,14 @@
 /*
-Problem_1: Divide a large integer array among MPI processes. Each process exchanges its boundary
-elements with neighboring processes using point-to-point communication and computes a local result.
-Sample Input
+Problem_1: Divide a large integer array among MPI processes. Each process exchanges its boundary elements with neighboring processes using point-to-point communication and computes a local result.
+
+Sample Input:
 Number of processes: 4
 N = 12
 Array: 10 20 30 40 50 60 70 80 90 100 110 120
 Distribution:
 P0: 10 20 30; P1: 40 50 60; P2: 70 80 90; P3: 100 110 120
-Sample Output
+
+Sample Output:
 P0: Right boundary sent = 30
 P1: Left boundary received = 30
 P1: Right boundary sent = 60

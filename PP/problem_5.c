@@ -1,8 +1,7 @@
 /*
-Problem_5: Distribute matrix rows from the root process to other processes using MPI_Send. Each process
-performs its portion of matrix multiplication and sends the result back to the root.
+Problem_5: Distribute matrix rows from the root process to other processes using MPI_Send. Each process performs its portion of matrix multiplication and sends the result back to the root.
 
-Sample Input
+Sample Input:
 Number of processes: 2
 Matrix A:
     1 2
@@ -11,7 +10,7 @@ Matrix B:
     5 6
     7 8
 
-Sample Output
+Sample Output:
 Matrix C = A × B
     19 22
     43 50
@@ -21,7 +20,7 @@ C[1][0] = 3×5 + 4×7 = 43
 C[1][1] = 3×6 + 4×8 = 50
 
 run project = /usr/bin/mpicc problem_5.c -o problem_5
-then /usr/bin/mpirun -np 4 ./problem_5
+then /usr/bin/mpirun -np 2 ./problem_5
 */
 #include <stdio.h>
 #include <mpi.h>
