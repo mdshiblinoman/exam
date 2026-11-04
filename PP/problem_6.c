@@ -1,8 +1,7 @@
 /*
-Problem_6: Divide a one-dimensional array among MPI processes. Exchange halo/boundary values
-between neighboring processes using MPI_Send and MPI_Recv, then perform a stencil computation.
+Problem_6: Divide a one-dimensional array among MPI processes. Exchange halo/boundary values between neighboring processes using MPI_Send and MPI_Recv, then perform a stencil computation.
 
-Sample Input
+Sample Input:
 Number of processes: 4
 Array: 10 20 30 40 50 60 70 80
 Radius = 1
@@ -13,7 +12,7 @@ P2: 50 60
 P3: 70 80
 Stencil: out[i] = left[i] + current[i] + right[i]
 
-Sample Output
+Sample Output:
 After halo exchange:
 P0: [10 20] + right halo 30
 P1: left halo 20, [30 40], right halo 50

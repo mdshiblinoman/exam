@@ -1,8 +1,7 @@
 /*
-Problem_9: Divide an array among MPI processes. Each process sorts its local portion and exchanges data
-with neighboring processes to produce a globally sorted array.
+Problem_9: Divide an array among MPI processes. Each process sorts its local portion and exchanges data with neighboring processes to produce a globally sorted array.
 
-Sample Input
+Sample Input:
 Number of processes: 4
 Array: 45 12 78 3 56 23 89 10
 Distribution:
@@ -11,7 +10,7 @@ P1: 78 3
 P2: 56 23
 P3: 89 10
 
-Sample Output
+Sample Output:
 Local sorting:
 P0: 12 45
 P1: 3 78
@@ -30,7 +29,6 @@ then /usr/bin/mpirun -np 4 ./problem_9
 
 #define N 8
 
-/* Compare two local arrays and keep the smaller half */
 void keep_lower(int *local, int *received, int n)
 {
     int *temp = (int *)malloc(2 * n * sizeof(int));
@@ -39,7 +37,6 @@ void keep_lower(int *local, int *received, int n)
     int j = 0;
     int k = 0;
 
-    /* Merge two sorted arrays */
     while (i < n && j < n)
     {
         if (local[i] < received[j])
@@ -54,14 +51,12 @@ void keep_lower(int *local, int *received, int n)
     while (j < n)
         temp[k++] = received[j++];
 
-    /* Keep smaller half */
     for (i = 0; i < n; i++)
         local[i] = temp[i];
 
     free(temp);
 }
 
-/* Compare two local arrays and keep the larger half */
 void keep_upper(int *local, int *received, int n)
 {
     int *temp = (int *)malloc(2 * n * sizeof(int));
@@ -70,7 +65,6 @@ void keep_upper(int *local, int *received, int n)
     int j = 0;
     int k = 0;
 
-    /* Merge two sorted arrays */
     while (i < n && j < n)
     {
         if (local[i] < received[j])
@@ -85,7 +79,6 @@ void keep_upper(int *local, int *received, int n)
     while (j < n)
         temp[k++] = received[j++];
 
-    /* Keep larger half */
     for (i = 0; i < n; i++)
         local[i] = temp[n + i];
 
@@ -95,7 +88,6 @@ void keep_upper(int *local, int *received, int n)
 int main(int argc, char *argv[])
 {
     int rank, size;
-
     int array[N] = {
         45, 12, 78, 3,
         56, 23, 89, 10};
@@ -109,7 +101,6 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    /* Array must be equally divisible */
     if (N % size != 0)
     {
         if (rank == 0)
@@ -122,13 +113,8 @@ int main(int argc, char *argv[])
     }
 
     local_size = N / size;
-
     local_array = (int *)malloc(local_size * sizeof(int));
     received_array = (int *)malloc(local_size * sizeof(int));
-
-    /* =====================================================
-       STEP 1: DISTRIBUTE ARRAY
-       ===================================================== */
 
     MPI_Scatter(
         array,
@@ -140,11 +126,6 @@ int main(int argc, char *argv[])
         0,
         MPI_COMM_WORLD);
 
-    /* =====================================================
-       STEP 2: LOCAL SORTING
-       ===================================================== */
-
-    /* Simple Bubble Sort */
     for (int i = 0; i < local_size - 1; i++)
     {
         for (int j = 0; j < local_size - i - 1; j++)
@@ -159,10 +140,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* Print local sorted arrays in rank order */
-
     MPI_Barrier(MPI_COMM_WORLD);
-
     if (rank == 0)
         printf("\nLocal sorting:\n");
 
@@ -183,29 +161,12 @@ int main(int argc, char *argv[])
         MPI_Barrier(MPI_COMM_WORLD);
     }
 
-    /* =====================================================
-       STEP 3: ODD-EVEN EXCHANGE SORT
-       ===================================================== */
-
-    /*
-     * Repeat size times.
-     *
-     * Even phase:
-     * P0 <-> P1
-     * P2 <-> P3
-     *
-     * Odd phase:
-     * P1 <-> P2
-     */
-
     for (int phase = 0; phase < size; phase++)
     {
         int partner = -1;
 
         if (phase % 2 == 0)
         {
-            /* Even phase */
-
             if (rank % 2 == 0)
                 partner = rank + 1;
             else
@@ -213,24 +174,14 @@ int main(int argc, char *argv[])
         }
         else
         {
-            /* Odd phase */
-
             if (rank % 2 == 0)
                 partner = rank - 1;
             else
                 partner = rank + 1;
         }
 
-        /* Check valid partner */
         if (partner >= 0 && partner < size)
         {
-            /*
-             * Exchange local arrays with neighbor.
-             *
-             * MPI_Sendrecv avoids deadlock because
-             * send and receive happen together.
-             */
-
             MPI_Sendrecv(
                 local_array,
                 local_size,
@@ -244,11 +195,6 @@ int main(int argc, char *argv[])
                 100,
                 MPI_COMM_WORLD,
                 MPI_STATUS_IGNORE);
-
-            /*
-             * Lower rank keeps smaller values.
-             * Higher rank keeps larger values.
-             */
 
             if (rank < partner)
             {
@@ -267,10 +213,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* =====================================================
-       STEP 4: GATHER FINAL SORTED DATA
-       ===================================================== */
-
     MPI_Gather(
         local_array,
         local_size,
@@ -280,10 +222,6 @@ int main(int argc, char *argv[])
         MPI_INT,
         0,
         MPI_COMM_WORLD);
-
-    /* =====================================================
-       STEP 5: PRINT GLOBAL SORTED ARRAY
-       ===================================================== */
 
     if (rank == 0)
     {

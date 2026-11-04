@@ -1,15 +1,14 @@
 /*
-Problem_7: Implement a distributed vector computation using MPI_Isend and MPI_Irecv. Compare its
-execution time with the equivalent blocking MPI_Send/MPI_Recv implementation.
+Problem_7: Implement a distributed vector computation using MPI_Isend and MPI_Irecv. Compare its execution time with the equivalent blocking MPI_Send/MPI_Recv implementation.
 
-Sample Input
+Sample Input:
 Number of processes: 2
 Array size = 8
 P0: 10 20 30 40 50 60 70 80
 P1: 1 2 3 4 5 6 7 8
 Each process exchanges its array using MPI_Isend and MPI_Irecv.
 
-Sample Output
+Sample Output:
 P0 received: 1 2 3 4 5 6 7 8
 P1 received: 10 20 30 40 50 60 70 80
 Nonblocking communication completed.
@@ -73,11 +72,7 @@ int main(int argc, char *argv[])
             send_array[i] = temp[i];
     }
 
-    // PART 1: BLOCKING COMMUNICATION
-    // MPI_Send + MPI_Recv
-
     MPI_Barrier(MPI_COMM_WORLD);
-
     start = MPI_Wtime();
 
     if (rank == 0)
@@ -104,23 +99,13 @@ int main(int argc, char *argv[])
     }
 
     end = MPI_Wtime();
-
     blocking_time = end - start;
 
-    // PART 2: NON-BLOCKING COMMUNICATION
-    // MPI_Isend + MPI_Irecv
-
     MPI_Barrier(MPI_COMM_WORLD);
-
     start = MPI_Wtime();
 
     if (rank == 0)
     {
-        /*
-         * P0 sends to P1
-         * P0 receives from P1
-         */
-
         MPI_Isend(send_array, N, MPI_INT,
                   1, 300, MPI_COMM_WORLD,
                   &requests[0]);
@@ -131,11 +116,6 @@ int main(int argc, char *argv[])
     }
     else
     {
-        /*
-         * P1 sends to P0
-         * P1 receives from P0
-         */
-
         MPI_Isend(send_array, N, MPI_INT,
                   0, 400, MPI_COMM_WORLD,
                   &requests[0]);
@@ -145,17 +125,9 @@ int main(int argc, char *argv[])
                   &requests[1]);
     }
 
-    /*
-     * Wait until both Isend and Irecv
-     * operations are completed.
-     */
     MPI_Waitall(2, requests, statuses);
-
     end = MPI_Wtime();
-
     nonblocking_time = end - start;
-
-    // PRINT RECEIVED ARRAYS
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -178,15 +150,9 @@ int main(int argc, char *argv[])
         printf("\n");
     }
 
-    // COMPARE EXECUTION TIME
-
     double max_blocking_time;
     double max_nonblocking_time;
 
-    /*
-     * Use maximum time among processes as the
-     * overall communication time.
-     */
     MPI_Reduce(&blocking_time,
                &max_blocking_time,
                1,

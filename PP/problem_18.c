@@ -1,8 +1,7 @@
 /*
-Problem_18: Divide a large dataset among MPI processes. Each process generates a local histogram, and
-MPI_Allreduce combines all local histograms into a global histogram.
+Problem_18: Divide a large dataset among MPI processes. Each process generates a local histogram, and MPI_Allreduce combines all local histograms into a global histogram.
 
-Sample Input
+Sample Input:
 Number of processes: 4
 Values range from 0 to 9.
 P0: 1 2 2 3
@@ -10,7 +9,7 @@ P1: 2 3 4 4
 P2: 1 4 5 5
 P3: 0 2 5 9
 
-Sample Output
+Sample Output:
 Final histogram after MPI_Allreduce:
 Value Frequency
  0       1

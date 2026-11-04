@@ -1,8 +1,7 @@
 /*
-Problem_13: Distribute matrix rows among processes when the number of rows is not evenly divisible by
-the number of processes. Collect the processed rows using MPI_Gatherv.
+Problem_13: Distribute matrix rows among processes when the number of rows is not evenly divisible by the number of processes. Collect the processed rows using MPI_Gatherv.
 
-Sample Input
+Sample Input:
 Number of processes: 3
 Matrix:
 1 2 3
@@ -15,7 +14,7 @@ P0 → 2 rows
 P1 → 2 rowsP2 → 1 row
 Operation: multiply every element by 2.
 
-Sample Output
+Sample Output:
 P0:
 2  4  6
 8 10 12

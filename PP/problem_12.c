@@ -1,8 +1,7 @@
 /*
-Problem_12: Use MPI_Scatter to distribute a large vector among processes. Each process calculates the
-square or cube of its elements, and MPI_Gather collects the results at the root process.
+Problem_12: Use MPI_Scatter to distribute a large vector among processes. Each process calculates the square or cube of its elements, and MPI_Gather collects the results at the root process.
 
-Sample Input
+Sample Input:
 Number of processes: 4
 Vector: 1 2 3 4 5 6 7 8
 After MPI_Scatter:
@@ -12,7 +11,7 @@ P2: 5 6
 P3: 7 8
 Operation: y[i] = x[i]^2
 
-Sample Output
+Sample Output:
 P0: 1 4
 P1: 9 16
 P2: 25 36

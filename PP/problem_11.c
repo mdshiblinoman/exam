@@ -1,15 +1,14 @@
 /*
-Problem_11: The root process reads configuration parameters and broadcasts them to all MPI processes.
-Each process uses the received parameters to perform a computation.
+Problem_11: The root process reads configuration parameters and broadcasts them to all MPI processes. Each process uses the received parameters to perform a computation.
 
-Sample Input
+Sample Input:
 Number of processes: 4
 Root process reads:
 Number of iterations = 1000
 Threshold = 50
 Block size = 256
 
-Sample Output
+Sample Output:
 P0 received: Iterations = 1000, Threshold = 50, Block size = 256
 P1 received: Iterations = 1000, Threshold = 50, Block size = 256
 P2 received: Iterations = 1000, Threshold = 50, Block size = 256

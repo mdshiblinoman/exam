@@ -1,13 +1,12 @@
 /*
-Problem_8: Create a two-process communication program that can cause deadlock when blocking sends
-are used. Modify the program to avoid deadlock using appropriate MPI communication techniques.
+Problem_8: Create a two-process communication program that can cause deadlock when blocking sends are used. Modify the program to avoid deadlock using appropriate MPI communication techniques.
 
-Sample Input
+Sample Input:
 Number of processes: 2
 P0 message = 100
 P1 message = 200
 
-Sample Output
+Sample Output:
 Unsafe version:
 P0: Waiting to send 100
 P1: Waiting to send 200
