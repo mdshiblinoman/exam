@@ -1,15 +1,14 @@
 /*
-Problem_16: Each MPI process stores a local value. Use MPI_Scan to calculate the prefix sum across all
-processes and compare it with a manually implemented point-to-point solution.
+Problem_16: Each MPI process stores a local value. Use MPI_Scan to calculate the prefix sum across all processes and compare it with a manually implemented point-to-point solution.
 
-Sample Input
+Sample Input:
 Number of processes: 4
 P0 = 10
 P1 = 20
 P2 = 30
 P3 = 40
 
-Sample Output
+Sample Output:
 P0: Local value = 10, Prefix sum = 10
 P1: Local value = 20, Prefix sum = 30
 P2: Local value = 30, Prefix sum = 60

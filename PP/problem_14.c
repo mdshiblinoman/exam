@@ -1,15 +1,14 @@
 /*
-Problem_14: Each process generates a set of numerical values. Use MPI_Reduce to calculate the global
-sum, maximum, minimum, and average.
+Problem_14: Each process generates a set of numerical values. Use MPI_Reduce to calculate the global sum, maximum, minimum, and average.
 
-Sample Input
+Sample Input:
 Number of processes: 4
 P0: 10 20 30
 P1: 40 50 60
 P2: 70 80 90
 P3: 100 110 120
 
-Sample Output
+Sample Output:
 Local sums:
 P0 = 60
 P1 = 150
